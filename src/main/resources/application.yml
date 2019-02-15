@@ -1,0 +1,86 @@
+eureka:
+  client:
+    service-url:
+      # eureka 服务中心，如果集群，则用逗号隔开，写多个。
+      defaultZone: http://10.0.8.52:8001/eureka/
+
+server:
+  port: 50001
+
+
+# 公钥
+public-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIFfErxFEfx7LzZYbvr7soAGSxSNmKtT8h3+bwj63/XCQo+PaYebOsmMMdnAqUouBFuJ2qmTODKWKatN8fGzGk8CAwEAAQ==
+
+spring:
+  application:
+    name: auth-server
+  # 数据库连接相关配置(推荐使用HikariCP 数据库连接池。据说性能目前num one)
+  datasource:
+    druid:
+      url: jdbc:mysql://10.0.8.253:3306/mylearn?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+      username: root
+      password: IFlBI+xuGaXE5DRuoq9OuO5hgawQ1NRWqi3AxBz43SXKJD8fA8KDNSWVG5aHg+YKvF2psG7JuaFJG0M3yIpw+g==
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      # 配置 connection-properties，启用加密，配置公钥。
+      connection-properties: config.decrypt=true;config.decrypt.key=${public-key}
+      # 启动ConfigFilter
+      filter:
+        config:
+          enabled: true
+      # 下面为连接池的补充设置，应用到上面所有数据源中
+      # 初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size:  20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall,log4j
+      # 监控配置
+      web-stat-filter:
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        url-pattern: /druid/*
+        reset-enable: false
+        login-username: sysadmin
+        login-password: "sysadmin"
+  redis:
+    host: 10.0.8.250
+    port: 6379
+    password: jkfq2016
+    #Redis数据库索引（默认为0）
+    database: 5
+    # 连接超时时间（毫秒）
+    timeout: 3000
+    lettuce:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1
+        # 连接池中的最小空闲连接
+        min-idle: 0
+#mybatis相关配置
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/**/*.xml
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

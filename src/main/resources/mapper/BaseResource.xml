@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jkfq.authserver.dao.BaseResourceDao">
+
+
+    <resultMap id="BaseResultMap" type="com.jkfq.authserver.entity.BaseResource">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="resource_name" property="resource_name" jdbcType="VARCHAR" />
+        <result column="resource_code" property="resource_code" jdbcType="VARCHAR" />
+        <result column="resource_uri" property="resource_uri" jdbcType="VARCHAR" />
+        <result column="parent_id" property="parent_id" jdbcType="BIGINT" />
+        <result column="http_method" property="http_method" jdbcType="VARCHAR" />
+        <result column="sort_num" property="sort_num" jdbcType="INTEGER" />
+        <result column="careate_time" property="careate_time" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="update_time" jdbcType="TIMESTAMP" />
+        <result column="is_operate" property="is_operate" jdbcType="VARCHAR" />
+        <result column="is_menu" property="is_menu" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="selectResourcesByUserId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT 
+          DISTINCT res.* 
+        FROM
+          t_sys_role r,t_sys_role_resource rres,t_sys_resource res,t_sys_user_role ur
+        WHERE
+          r.id = rres.role_id AND rres.resource_id = res.id
+          AND r.id = ur.role_id AND ur.user_id = #{userId}
+    </select>
+
+</mapper>
