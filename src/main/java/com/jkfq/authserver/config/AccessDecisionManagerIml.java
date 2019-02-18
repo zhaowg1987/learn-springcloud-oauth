@@ -54,7 +54,6 @@ public class AccessDecisionManagerIml implements AccessDecisionManager {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-
     @Override
     public void decide(Authentication authentication, Object o, Collection<ConfigAttribute> collection) throws AccessDeniedException, InsufficientAuthenticationException {
         // 请求路径
@@ -62,6 +61,10 @@ public class AccessDecisionManagerIml implements AccessDecisionManager {
         // http 方法
         httpMethod = getMethod(o);
         log.info("{}----访问方式----{}",url,httpMethod);
+        if(url.equalsIgnoreCase("/oauth/user") ||
+                url.equalsIgnoreCase("/oauth/revoke-token")) {
+            return;
+        }
 
        /* // 不拦截的请求
         for(String path : ignoreds){

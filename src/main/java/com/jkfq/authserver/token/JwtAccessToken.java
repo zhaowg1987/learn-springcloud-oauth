@@ -1,9 +1,11 @@
 package com.jkfq.authserver.token;
 
+import com.alibaba.fastjson.JSON;
 import com.jkfq.authserver.constant.Constants;
 import com.jkfq.authserver.entity.BaseUser;
 import com.jkfq.authserver.entity.BaseUserDetail;
 import com.jkfq.authserver.utils.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -17,6 +19,7 @@ import java.util.Map;
  * @Author
  * @create 2019-01-31
  **/
+@Slf4j
 public class JwtAccessToken extends JwtAccessTokenConverter {
 
     /**
@@ -31,9 +34,19 @@ public class JwtAccessToken extends JwtAccessTokenConverter {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
         DefaultOAuth2AccessToken defaultOAuth2AccessToken = new DefaultOAuth2AccessToken(accessToken);
-
+        log.info("----==================自定义enhance================----");
+        Object baseUserDetailObject = authentication.getPrincipal();
+        BaseUserDetail baseUserDetail = null;
+        if (baseUserDetailObject instanceof BaseUserDetail){
+            log.info("----==================直接转义================----");
+            baseUserDetail = (BaseUserDetail) baseUserDetailObject;
+        }else {
+            log.info("----==================Json转义================----");
+            String string = JSON.toJSON(baseUserDetailObject).toString();
+            baseUserDetail = JSON.parseObject(string, BaseUserDetail.class);
+        }
         // 设置额外用户信息
-        BaseUser baseUser = ((BaseUserDetail) authentication.getPrincipal()).getBaseUser();
+        BaseUser baseUser = baseUserDetail.getBaseUser();
         baseUser.setUserPassword(null);
         // 将用户信息添加到token额外信息中
         defaultOAuth2AccessToken.getAdditionalInformation().put(Constants.USER_INFO, baseUser);
